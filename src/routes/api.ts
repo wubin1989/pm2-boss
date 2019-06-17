@@ -1,9 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var pm2 = require('pm2');
-var utils = require('../utils');
-var fs = require('fs');
-const backlog = 8000;
 
 router.get('/', function(req, res, next) {
   res.redirect(req.baseUrl + '/info')

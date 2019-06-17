@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
                   case ConnectionState.done:
                     if (snapshot.hasError) {
                       return Text(
-                        '${snapshot.error}',
+                        '\n\n\n\n\n${snapshot.error}',
                         style: TextStyle(color: Colors.red),
                       );
                     } else {

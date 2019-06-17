@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kilobyte/kilobyte.dart' as kilobyte;
 import 'package:pm2_boss_client/entities/process_entity.dart';
-import 'package:pm2_boss_client/pages/out_log_page.dart';
+import 'package:pm2_boss_client/pages/log_page.dart';
 
 class ProcessListComponent extends StatefulWidget {
   final List<ProcessEntity> processList;
@@ -42,22 +42,37 @@ class _ProcessListState extends State<ProcessListComponent> {
             _renderItem('在线时长', '${onlineInHours}'),
             _renderItem('cpu', '${processEntity.monit.cpu}'),
             _renderItem('内存', '${memoryUsageInMegabytes}M'),
-            _renderButton(
-                '查看Out日志',
-                OutLogPage(
-                    processEntity.name, processEntity.pm2Env.pmOutLogPath)),
+            Container(
+              margin: EdgeInsets.only(top: 4),
+              child: Row(
+                children: <Widget>[
+                  _renderButton(
+                      '查看Out日志',
+                      LogPage(
+                          '${processEntity.name}的Out日志', processEntity.pm2Env.pmOutLogPath)),
+                  Container(width: 20,),
+                  _renderButton(
+                      '查看Err日志',
+                      LogPage(
+                          '${processEntity.name}的Err日志', processEntity.pm2Env.pmErrLogPath), code: 1),
+                ],
+              ),
+            )
           ],
         ),
       ),
     );
   }
 
-  _renderButton(String title, Widget page) {
+  _renderButton(String title, Widget page, {int code = 0}) {
     return Container(
+      width: 90,
       child: RaisedButton(
+        padding: EdgeInsets.symmetric(horizontal: 0),
+        color: code == 1 ? Colors.red : Colors.green,
         onPressed: () => Navigator.push(
             context, MaterialPageRoute(builder: (context) => page)),
-        child: Text(title),
+        child: Text(title, style: TextStyle(color: Colors.white, fontSize: 12),),
       ),
     );
   }

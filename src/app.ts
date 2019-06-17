@@ -5,6 +5,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var lessMiddleware = require('less-middleware');
 var logger = require('morgan');
+var fs = require('fs');
+var utils = require('./utils');
+const backlog = 3000;
 
 var indexRouter = require('./routes');
 var usersRouter = require('./routes/users');
@@ -68,8 +71,31 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 io.on('connection', function (client){
-  console.log('connected');
+  console.log(`Client SocketID: ${client.id} connected.`);
+
+  // { headers:
+  // { 'user-agent': 'Dart/2.3 (dart:io)',
+  //     connection: 'Upgrade',
+  //     'cache-control': 'no-cache',
+  //     'accept-encoding': 'gzip',
+  //     'content-length': '0',
+  //     'sec-websocket-version': '13',
+  //     host: '192.168.1.102:3000',
+  //     'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits',
+  //     'sec-websocket-key': '7SoURcWs3ux8jk4KO/S0zg==',
+  //     foo: 'bar',
+  //     upgrade: 'websocket' },
+  //   time: 'Mon Jun 17 2019 14:16:25 GMT+0800 (CST)',
+  //       address: '::ffff:192.168.1.104',
+  //     xdomain: false,
+  //     secure: false,
+  //     issued: 1560752185123,
+  //     url: '/socket.io/?EIO=3&transport=websocket',
+  //     query: { EIO: '3', transport: 'websocket' } }
+  // console.log(client.handshake)
+
   client.on('watchFile', function (file) {
+    console.log(file)
     fs.stat(file, function (err, stats) {
       if (err) throw err;
       var start = (stats.size > backlog) ? (stats.size - backlog) : 0;
@@ -91,6 +117,10 @@ io.on('connection', function (client){
   client.on('unwatchFile', function (file) {
     fs.unwatchFile(file)
   })
+
+  client.on('disconnect', function(){
+    console.log(`${client.id} disconnected`);
+  });
 });
 
 /**

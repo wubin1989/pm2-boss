@@ -203,7 +203,7 @@ class Versioning {
 
 class Monit {
 	int memory;
-	int cpu;
+	num cpu;
 
 	Monit({this.memory, this.cpu});
 
