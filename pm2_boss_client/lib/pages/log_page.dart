@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pm2_boss_client/entities/tail_entity.dart';
+import 'package:pm2_boss_client/protocol.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class LogPage extends StatefulWidget {
@@ -15,16 +16,19 @@ class LogPage extends StatefulWidget {
 class _LogPageState extends State<LogPage> {
   List<String> _lines;
   IO.Socket socket;
+  ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _lines = [];
     _initSocketIO();
+    _scrollController = ScrollController();
   }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback(afterBuild);
     return Scaffold(
       appBar: AppBar(
           title: Text(widget.title),
@@ -39,6 +43,7 @@ class _LogPageState extends State<LogPage> {
             child: Icon(Icons.arrow_back),
           )),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Container(
           margin: EdgeInsets.all(20),
           child: Text(_lines.join('\n')),
@@ -48,7 +53,7 @@ class _LogPageState extends State<LogPage> {
   }
 
   _initSocketIO() {
-    socket = IO.io('http://192.168.1.102:3000', <String, dynamic>{
+    socket = IO.io(SOCKETIO_ENTRYPOINT, <String, dynamic>{
       'transports': ['websocket'],
       'extraHeaders': {'foo': 'bar'},
       'forceNew': true,
@@ -66,5 +71,13 @@ class _LogPageState extends State<LogPage> {
         _lines.addAll(lines);
       });
     });
+  }
+
+  afterBuild(_) {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.ease,
+    );
   }
 }
